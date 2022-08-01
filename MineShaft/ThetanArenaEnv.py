@@ -1,4 +1,11 @@
 from .BaseEnv import BaseEnv
+from random import random
+import pyautogui
+import time
+from tkinter import messagebox
+import os.path
+from os import path
+import pathlib
 
 class ThetanArenaEnv(BaseEnv):
     def __init__(self, io_mode=IO_MODE.FULL_CONTROL,
@@ -48,12 +55,34 @@ class ThetanArenaEnv(BaseEnv):
         pass
     
     def _start_game(self):
-        """This is a function to open the game - Thetan Arena.
+        """This is a function to check the game is installed or not and open the game - Thetan Arena.
+        If game is not install, an msg box will pop out.
         The game path (C:\Program Files (x86)\Thetan Arena\Thetan Arena.exe) is hardcore.
+        
         """
         
-        os.startfile('"C:\Program Files (x86)\Thetan Arena\Thetan Arena.exe"')
+        validPath = pathlib.Path("C:/Program Files (x86)/Thetan Arena/Thetan Arena.exe")
+        if validPath.exists ():
+            os.startfile("C:/Program Files (x86)/Thetan Arena/Thetan Arena.exe")
+        else:
+            messagebox.showerror("Error", "The game Thetan Arena cannot be found installed in the system")
+            
+        time.sleep(5)
+
+        pyautogui.moveTo(1347,989,1)
+        pyautogui.leftClick()
+
+        time.sleep(2)
+        pyautogui.dragTo(300, 400, 2, button='left')
         
+        time.sleep(2)
+        pyautogui.moveTo(1451,317,2)
+        pyautogui.leftClick()
+        
+        time.sleep(2)
+        pyautogui.moveTo(948,754,2)
+        pyautogui.leftClick()
+
     
     def _end_game(self):
         pass
