@@ -48,7 +48,12 @@ class ThetanArenaEnv(BaseEnv):
         pass
     
     def _start_game(self):
-        pass
+        """This is a function to open the game - Thetan Arena.
+        The game path (C:\Program Files (x86)\Thetan Arena\Thetan Arena.exe) is hardcore.
+        """
+        
+        os.startfile('"C:\Program Files (x86)\Thetan Arena\Thetan Arena.exe"')
+        
     
     def _end_game(self):
         pass
