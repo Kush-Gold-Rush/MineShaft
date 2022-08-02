@@ -1,4 +1,8 @@
 from .BaseEnv import BaseEnv
+import os.path
+from os import path
+import errno
+        
 
 class ThetanArenaEnv(BaseEnv):
     def __init__(self, io_mode=IO_MODE.FULL_CONTROL,
@@ -48,7 +52,17 @@ class ThetanArenaEnv(BaseEnv):
         pass
     
     def _start_game(self):
-        pass
+        """This is a function to check the game is installed or not and open the game - Thetan Arena.
+        If game is not install, an msg box will pop out.
+        The game path (C:\Program Files (x86)\Thetan Arena\Thetan Arena.exe) is hardcore.
+        
+        """
+
+        try:
+            os.startfile("C:/Program Files (x86)/Thetan Arena/Thetan Arena.exe")
+        except FileNotFoundError as e:
+            print(f"FileNotFoundError successfully handled\n"
+                  f"{e}")
     
     def _end_game(self):
         pass
