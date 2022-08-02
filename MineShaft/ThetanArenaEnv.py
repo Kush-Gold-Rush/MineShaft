@@ -1,4 +1,10 @@
 from .BaseEnv import BaseEnv
+import time
+import cv2
+import mss
+import numpy
+from PIL import ImageGrab
+import pyautogui
 
 class ThetanArenaEnv(BaseEnv):
     def __init__(self, io_mode=IO_MODE.FULL_CONTROL,
@@ -18,7 +24,39 @@ class ThetanArenaEnv(BaseEnv):
         pass
     
     def _screen_cap(self):
-        pass
+        """This is the function to capture screen from game in format of numpy.array.
+        Screen resolution default set to screen resolution getting by pyautogui.size().
+        
+        """
+        
+        title = "FPS benchmark"
+        start_time = time.time()
+        display_time = 2
+        fps = 0
+
+        sct = mss.mss()
+        x, y = pyautogui.size()
+        monitor = {"top": 0, "left": 0, "width": x, "height": y}
+
+        def screen_recordMSS():
+
+            global fps, start_time
+            while True:
+                # Get raw pixels from the screen, save it to a Numpy array
+                img = numpy.array(sct.grab(monitor))
+                # to ger real color we do this:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                cv2.imshow(title, cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                fps+=1
+                TIME = time.time() - start_time
+                if (TIME) >= display_time :
+                    print("FPS: ", fps / (TIME))
+                    fps = 0
+                    start_time = time.time()
+
+                if cv2.waitKey(25) & 0xFF == ord("q"):
+                    cv2.destroyAllWindows()
+                    break
     
     def _keyboard_input(self, action):
         # scan and find keyboard action
