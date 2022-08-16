@@ -110,6 +110,7 @@ class ThetanArenaEnv(BaseEnv):
     def step(self, action):
         self._take_action(action)
         obs = self._screen_cap()
+        self._calc_reward(obs)
         self._check_if_game_session_started()
         self._check_if_game_session_ended()
         return obs, self.reward, self.done, self.info
@@ -156,10 +157,19 @@ class ThetanArenaEnv(BaseEnv):
                                   cv2.BORDER_CONSTANT,
                                   value=[0, 0, 0])
 
-    def _capture_reward(self):
+    def _calc_reward(self, obs):
         if not self.info['waiting'] and not self.done:
-            pass
-        # self.reward = self._screen_get_total_score()
+            h = self.monitor['height']
+            t = self.monitor['top']
+            w = self.monitor['width']
+            l = self.monitor['left']
+            # h=92-93%
+            # w=10%*2
+            image = obs[t + int(h * 0.92):t + int(h * 0.93),
+                        l + int(w * 0.4):l + int(w * 0.6),
+                        0]
+            # sum(blue_channel)/total_pixel_num
+            self.reward = sum(image) / image.size
 
     def _keyboard_input(self, action):
         """Press and release keys based on `action` as KEYMAP mask
