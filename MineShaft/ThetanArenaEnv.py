@@ -3,13 +3,14 @@ import time
 import subprocess
 
 import mss
+from gym import spaces
 import numpy as np
 import pyautogui
 import cv2
 import pygetwindow as gw
 
 from .BaseEnv import BaseEnv
-from cv_matching import cv_matching
+from .cv_matching import cv_matching
 
 class ThetanArenaEnv(BaseEnv):
     def __init__(self, io_mode=BaseEnv.IO_MODE.FULL_CONTROL,
@@ -59,7 +60,7 @@ class ThetanArenaEnv(BaseEnv):
         except:
             raise Exception("the game is not installed")
         
-        if io_mode == IO_MODE.FULL_CONTROL:
+        if io_mode == BaseEnv.IO_MODE.FULL_CONTROL:
             # press & release channels; 80 key + mouse (move + click + scroll)
             ACTION_SHAPE = (2, 80 + (2 + 2 + 1))
             self.action_space = spaces.Box(low=-1.0, high=1.0,
@@ -72,6 +73,7 @@ class ThetanArenaEnv(BaseEnv):
                                                 shape=obs_shape,
                                                 dtype=np.uint8)
 
+            time.sleep(3)
             gameWindow = gw.getWindowsWithTitle('Thetan Arena')[0]
             self.monitor = {"top": gameWindow.top,
                             "left": gameWindow.left,
@@ -104,8 +106,6 @@ class ThetanArenaEnv(BaseEnv):
 
         self.cv_matcher = cv_matching()
         self.cv_matcher.preload_templates()
-
-        return self.action_space, self.observation_space
 
     def step(self, action):
         self._take_action(action)
