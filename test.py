@@ -7,6 +7,7 @@ from MineShaft import ThetanArenaEnv
 def main():
 	env = ThetanArenaEnv()
 	env.enter_match()
+	# env.enter_match(random_character=True)
 	model = PPO("MlpPolicy", env, verbose=1)
 	model.learn(total_timesteps=10_000)
 

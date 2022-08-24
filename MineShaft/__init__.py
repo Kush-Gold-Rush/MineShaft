@@ -1,1 +1,1 @@
-from ThetanArenaEnv import ThetanArenaEnv
+from .ThetanArenaEnv import ThetanArenaEnv
