@@ -167,10 +167,10 @@ class ThetanArenaEnv(BaseEnv):
         self._end_game()
 
     def _take_action(self, action):
-        self._mouse_move(*action[0,-5:-3]*0.96+0.04)
+        self._mouse_move(*action[0,-5:-3]*0.96+0.025)
         self._mouse_press(*(action[0,-3:-1] > 0))
         self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
-        self._mouse_move(*action[1,-5:-3]*0.96+0.04)
+        self._mouse_move(*action[1,-5:-3]*0.96+0.025)
         self._mouse_release(*(action[1,-3:-1] > 0))
         self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
 
