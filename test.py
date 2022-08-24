@@ -1,32 +1,24 @@
-import time
-
 from stable_baselines3 import PPO
+from stable_baselines3.common.cmd_util import make_vec_env
 
 from MineShaft import ThetanArenaEnv
 
 def main():
-	env = ThetanArenaEnv()
+	env = ThetanArenaEnv(io_mode=ThetanArenaEnv.IO_MODE.SIMPLIFIED)
+	env = make_vec_env(lambda: env, n_envs=1)
 	model = PPO("MlpPolicy", env, verbose=1)
 	model.learn(total_timesteps=10_000)
 
 	info = {'waiting': True}
 	action = env.action_space.sample()
 	action = action * 0
-	i = 0
-	while i < 10_000:
-		start_time = time.time()
+	env.reset()
+	for _ in range(10_000):
 		if not info['waiting']:
 			action, _states = model.predict(observation, deterministic=True)
-		else:
-			i -= 1
 		observation, reward, done, info = env.step(action)
 		if done:
 			observation = env.reset()
-		if time.time() - start_time < 0.9:
-			try:
-				time.sleep(0.1 - time.time() - start_time)
-			except:
-				pass
 
 	env.close()
 
