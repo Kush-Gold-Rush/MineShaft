@@ -32,18 +32,16 @@ In old days cryptocurrecy mining does not give much value but cost high power co
 <!-- - 🏪 Marketplace for reinforcement learning agents in "Miner" for industrial robotics (revenue sharing with contributor) -->
 
 ### Progress
-- [x] ![](https://progress-bar.dev/91/?title=done) Base class for MineShaft environments
-- [ ] ![](https://progress-bar.dev/1/?title=done) Environment for Thetan Arena
+- [x] ![](https://progress-bar.dev/99/?title=done) Base class for MineShaft environments
+- [x] ![](https://progress-bar.dev/60/?title=done) Environment for Thetan Arena
 - [ ] ![](https://progress-bar.dev/1/?title=done) Single node MineShaft
 - [ ] ![](https://progress-bar.dev/0/?title=done) Multi node MineShaft
 
 ### Social Media
-Blog... (Twitter, pending)
-Chat room... (Discord, debugging)
-<!-- <center>
-  <iframe src="https://discord.com/widget?id=970501981317767218&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
-  </iframe>
-</center> -->
+<!-- Blog... (Twitter, pending) -->
+<center>
+  <iframe src="https://discord.com/widget?id=970501981317767218&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+</center>
 
 ### Contribute
 Tasks of status "Todos" or "In progress" on project kanban will be listed in issues. Fork, develop and sumbit pull request. 💖
