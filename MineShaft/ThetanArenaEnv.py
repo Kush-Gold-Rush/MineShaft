@@ -60,6 +60,7 @@ class ThetanArenaEnv(BaseEnv):
         except:
             raise Exception("the game is not installed")
         
+        time.sleep(3)
         if io_mode == BaseEnv.IO_MODE.FULL_CONTROL:
             # press & release channels; 80 key + mouse (move + click + scroll)
             ACTION_SHAPE = (2 * (80 + (2 + 2 + 1)),)
@@ -73,7 +74,6 @@ class ThetanArenaEnv(BaseEnv):
                                                 shape=obs_shape,
                                                 dtype=np.uint8)
 
-            time.sleep(3)
             gameWindow = gw.getWindowsWithTitle('Thetan Arena')[0]
             self.monitor = {"top": gameWindow.top,
                             "left": gameWindow.left,
@@ -112,7 +112,6 @@ class ThetanArenaEnv(BaseEnv):
                                                 shape=obs_shape,
                                                 dtype=np.uint8)
 
-            time.sleep(3)
             gameWindow = gw.getWindowsWithTitle('Thetan Arena')[0]
             self.monitor = {"top": gameWindow.top,
                             "left": gameWindow.left,
@@ -150,16 +149,17 @@ class ThetanArenaEnv(BaseEnv):
         self._reset_game()
         self.enter_match()
         self.info = {'waiting': True}
+        time.sleep(10)
 
     def close(self):
         self._end_game()
 
     def _take_action(self, action):
-        self._mouse_move(action[0,-5:-3])
-        self._mouse_press(action[0,-3:-1])
+        self._mouse_move(*action[0,-5:-3])
+        self._mouse_press(*(action[0,-3:-1] > 0))
         self._keyboard_press(action[0,:-5])
-        self._mouse_move(action[1,-5:-3])
-        self._mouse_release(action[1,-3:-1])
+        self._mouse_move(*action[1,-5:-3])
+        self._mouse_release(*(action[1,-3:-1] > 0))
         self._keyboard_release(action[1:-5])
 
     def _screen_cap(self):
@@ -242,11 +242,11 @@ class ThetanArenaEnv(BaseEnv):
         """
         x = (self.monitor['left'] +
              width *
-             abs(self.monitor['right'] -
+             abs(self.monitor['width'] -
                  self.monitor['left']))
         y = (self.monitor['top'] +
              height *
-             abs(self.monitor['bottom'] -
+             abs(self.monitor['height'] -
                  self.monitor['top']))
         pyautogui.moveTo(x, y, duration=0.2)
     

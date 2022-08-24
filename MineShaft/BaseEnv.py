@@ -88,7 +88,7 @@ class BaseEnv(gym.Env):
         # They must be gym.spaces objects
         if io_mode == self.IO_MODE.FULL_CONTROL:
             # press & release channels; 92 key + mouse (move + click + scroll)
-            ACTION_SHAPE = (2, 92 + (2 + 2 + 1))
+            ACTION_SHAPE = (2 * (92 + (2 + 2 + 1)),)
             # screen height
             HEIGHT = 512
             # screen width
@@ -97,7 +97,7 @@ class BaseEnv(gym.Env):
             N_CHANNELS = 3
         elif io_mode == self.IO_MODE.SIMPLIFIED:
             # keyboard (WASD/SPACE/12345) + mouse (move + click + scroll)
-            ACTION_SHAPE = (2, 11 + (2 + 2 + 1))
+            ACTION_SHAPE = (2 * (11 + (2 + 2 + 1)),)
             # screen height
             HEIGHT = 512
             # screen width
