@@ -82,11 +82,13 @@ class ThetanArenaEnv(BaseEnv):
 
             self.sct = mss.mss()
             img = np.array(self.sct.grab(self.monitor))
-            ratio = max(img.shape) // 512
+            ratio = max(img.shape) // 512 + 1
             self.dsize = (img.shape[1] // ratio,
                           img.shape[0] // ratio)
-            self.left_right_pad = (obs_shape[1] - self.dsize[1]) // 2
-            self.top_bottom_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.top_pad = (obs_shape[1] - self.dsize[1]) // 2
+            self.bottom_pad = obs_shape[1] - self.dsize[1] - self.top_pad
+            self.left_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.right_pad = obs_shape[0] - self.dsize[0] - self.left_pad
 
             self.KEYBOARD_MAP = np.asarray([
                 'altleft', 'altright', 'ctrlleft', 'ctrlright', 'shiftleft',
@@ -100,7 +102,7 @@ class ThetanArenaEnv(BaseEnv):
                 'end', 'enter', 'esc', 'numlock', 'pagedown', 'pageup',
                 'right', 'space', 'tab', 'up', 'home'])
         elif io_mode == BaseEnv.IO_MODE.SIMPLIFIED:
-            # press & release channels; 80 key + mouse (move + click + scroll)
+            # press & release channels; 11 key + mouse (move + click + scroll)
             ACTION_SHAPE = (2 * (11 + (2 + 2 + 1)),)
             self.action_space = spaces.Box(low=-1.0, high=1.0,
                                            shape=ACTION_SHAPE,
@@ -120,14 +122,16 @@ class ThetanArenaEnv(BaseEnv):
 
             self.sct = mss.mss()
             img = np.array(self.sct.grab(self.monitor))
-            ratio = max(img.shape) // 512
+            ratio = max(img.shape) // 512 + 1
             self.dsize = (img.shape[1] // ratio,
                           img.shape[0] // ratio)
-            self.left_right_pad = (obs_shape[1] - self.dsize[1]) // 2
-            self.top_bottom_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.top_pad = (obs_shape[1] - self.dsize[1]) // 2
+            self.bottom_pad = obs_shape[1] - self.dsize[1] - self.top_pad
+            self.left_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.right_pad = obs_shape[0] - self.dsize[0] - self.left_pad
 
             self.KEYBOARD_MAP = np.asarray([
-                'w', 'a', 's', 'd', 'space', '1', '2', '3', '4', '5'])
+                'w', 'a', 's', 'd', 'space', '0', '1', '2', '3', '4', '5'])
 
         self.info = {'waiting': True}
         self.done = False
@@ -137,30 +141,38 @@ class ThetanArenaEnv(BaseEnv):
         self.cv_matcher.preload_templates()
 
     def step(self, action):
+        start_time = time.time()
         action = action.reshape(2, -1)
         self._take_action(action)
         obs = self._screen_cap()
         self._calc_reward(obs)
         self._check_if_game_session_started()
         self._check_if_game_session_ended()
+        a = time.time() - start_time
+        if a < 0.09:
+            time.sleep(0.1 - a)
         return obs, self.reward, self.done, self.info
 
     def reset(self):
         self._reset_game()
+        time.sleep(3)
         self.enter_match()
         self.info = {'waiting': True}
+        self.done = False
+        self.reward = 0
         time.sleep(10)
+        return self._screen_cap()
 
     def close(self):
         self._end_game()
 
     def _take_action(self, action):
-        self._mouse_move(*action[0,-5:-3])
+        self._mouse_move(*action[0,-5:-3]*0.96+0.04)
         self._mouse_press(*(action[0,-3:-1] > 0))
-        self._keyboard_press(action[0,:-5])
-        self._mouse_move(*action[1,-5:-3])
+        self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
+        self._mouse_move(*action[1,-5:-3]*0.96+0.04)
         self._mouse_release(*(action[1,-3:-1] > 0))
-        self._keyboard_release(action[1:-5])
+        self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
 
     def _screen_cap(self):
         """This is the function to capture screen from the game Thetan Arena.
@@ -181,26 +193,26 @@ class ThetanArenaEnv(BaseEnv):
         img = np.array(self.sct.grab(self.monitor))
         img = cv2.resize(img, self.dsize)
         return cv2.copyMakeBorder(img,
-                                  self.top_bottom_pad,
-                                  self.top_bottom_pad,
-                                  self.left_right_pad,
-                                  self.left_right_pad,
+                                  self.top_pad,
+                                  self.bottom_pad,
+                                  self.left_pad,
+                                  self.right_pad,
                                   cv2.BORDER_CONSTANT,
                                   value=[0, 0, 0])
 
     def _calc_reward(self, obs):
         if not self.info['waiting'] and not self.done:
-            h = self.monitor['height']
-            t = self.monitor['top']
-            w = self.monitor['width']
-            l = self.monitor['left']
+            h = self.dsize[1]
+            t = self.top_pad
+            w = self.dsize[0]
+            l = self.left_pad
             # h=92-93%
             # w=10%*2
-            image = obs[t + int(h * 0.92):t + int(h * 0.93),
-                        l + int(w * 0.4):l + int(w * 0.6),
+            image = obs[int(t + h * 0.91):int(t + h * 0.93),
+                        int(l + w * 0.4) :int(l + w * 0.6),
                         0]
             # sum(blue_channel)/total_pixel_num
-            self.reward = sum(image) / image.size
+            self.reward = image.sum() / image.size
 
     def _keyboard_input(self, action):
         """Press and release keys based on `action` as KEYMAP mask
@@ -241,13 +253,9 @@ class ThetanArenaEnv(BaseEnv):
           percentage of screen height
         """
         x = (self.monitor['left'] +
-             width *
-             abs(self.monitor['width'] -
-                 self.monitor['left']))
+             np.abs(width) * self.monitor['width'])
         y = (self.monitor['top'] +
-             height *
-             abs(self.monitor['height'] -
-                 self.monitor['top']))
+             np.abs(height) * self.monitor['height'])
         pyautogui.moveTo(x, y, duration=0.2)
     
     def _mouse_click(self, action):
@@ -375,6 +383,8 @@ class ThetanArenaEnv(BaseEnv):
                 self.done = True
 
     def _reset_game(self):
-        self._mouse_move(0.5, 0.9)
-        self._mouse_press(True, False)
-        self._mouse_release(True, False)
+        self._check_if_game_session_ended()
+        if self.done:
+            self._mouse_move(0.5, 0.9)
+            self._mouse_press(True, False)
+            self._mouse_release(True, False)
