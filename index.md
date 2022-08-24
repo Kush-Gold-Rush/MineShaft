@@ -10,7 +10,7 @@ And yes... You can use the MineShaft to mine cryptocurrencies through NFT Games 
 ### An illustration
 How will it be like? Remember of OpenAI Five? We mean to beat OpenAI Five.
 <center>
-  <iframe width="880" height="495" src="https://www.youtube.com/embed/ixyb9yMW3ns" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="1280" height="720" src="https://www.youtube.com/embed/pkGa8ICQJS8" title="OG vs OpenAI FIVE - AI vs HUMANS - TI8 CHAMPIONS vs BOTS FINAL DOTA 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
   <p>OpenAI Five gameplay with OG</p>
 </center>
 
