@@ -62,7 +62,7 @@ class ThetanArenaEnv(BaseEnv):
         
         if io_mode == BaseEnv.IO_MODE.FULL_CONTROL:
             # press & release channels; 80 key + mouse (move + click + scroll)
-            ACTION_SHAPE = (2, 80 + (2 + 2 + 1))
+            ACTION_SHAPE = (2 * (80 + (2 + 2 + 1)),)
             self.action_space = spaces.Box(low=-1.0, high=1.0,
                                            shape=ACTION_SHAPE,
                                            dtype=np.float32)
@@ -99,7 +99,37 @@ class ThetanArenaEnv(BaseEnv):
                 'num3', 'num4', 'num5', 'num6', 'num7', 'num8', 'num9',
                 'end', 'enter', 'esc', 'numlock', 'pagedown', 'pageup',
                 'right', 'space', 'tab', 'up', 'home'])
-            
+        elif io_mode == BaseEnv.IO_MODE.SIMPLIFIED:
+            # press & release channels; 80 key + mouse (move + click + scroll)
+            ACTION_SHAPE = (2 * (11 + (2 + 2 + 1)),)
+            self.action_space = spaces.Box(low=-1.0, high=1.0,
+                                           shape=ACTION_SHAPE,
+                                           dtype=np.float32)
+
+            # obs_shape in (HEIGHT, WIDTH, N_CHANNELS)
+            obs_shape = (512, 512, 4)
+            self.observation_space = spaces.Box(low=0, high=255,
+                                                shape=obs_shape,
+                                                dtype=np.uint8)
+
+            time.sleep(3)
+            gameWindow = gw.getWindowsWithTitle('Thetan Arena')[0]
+            self.monitor = {"top": gameWindow.top,
+                            "left": gameWindow.left,
+                            "width": gameWindow.width,
+                            "height": gameWindow.height}
+
+            self.sct = mss.mss()
+            img = np.array(self.sct.grab(self.monitor))
+            ratio = max(img.shape) // 512
+            self.dsize = (img.shape[1] // ratio,
+                          img.shape[0] // ratio)
+            self.left_right_pad = (obs_shape[1] - self.dsize[1]) // 2
+            self.top_bottom_pad = (obs_shape[0] - self.dsize[0]) // 2
+
+            self.KEYBOARD_MAP = np.asarray([
+                'w', 'a', 's', 'd', 'space', '1', '2', '3', '4', '5'])
+
         self.info = {'waiting': True}
         self.done = False
         self.reward = 0
@@ -108,6 +138,7 @@ class ThetanArenaEnv(BaseEnv):
         self.cv_matcher.preload_templates()
 
     def step(self, action):
+        action = action.reshape(2, -1)
         self._take_action(action)
         obs = self._screen_cap()
         self._calc_reward(obs)
@@ -344,4 +375,6 @@ class ThetanArenaEnv(BaseEnv):
                 self.done = True
 
     def _reset_game(self):
-        pass
+        self._mouse_move(0.5, 0.9)
+        self._mouse_press(True, False)
+        self._mouse_release(True, False)
