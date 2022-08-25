@@ -6,6 +6,16 @@
   "commit": false,
   "contributors": [
     {
+      "login": "ivesiuchunproject",
+      "name": "ivesiuchunproject",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110085069?v=4",
+      "profile": "https://github.com/ivesiuchunproject",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    },
+    {
       "login": "210388248",
       "name": "LeeKaYip",
       "avatar_url": "https://avatars.githubusercontent.com/u/110087604?v=4",

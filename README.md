@@ -48,6 +48,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
+    <td align="center"><a href="https://github.com/ivesiuchunproject"><img src="https://avatars.githubusercontent.com/u/110085069?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ivesiuchunproject</b></sub></a><br /><a href="https://github.com/Kush-Gold-Rush/MineShaft/commits?author=ivesiuchunproject" title="Code">💻</a> <a href="#maintenance-ivesiuchunproject" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/210388248"><img src="https://avatars.githubusercontent.com/u/110087604?v=4?s=100" width="100px;" alt=""/><br /><sub><b>LeeKaYip</b></sub></a><br /><a href="https://github.com/Kush-Gold-Rush/MineShaft/commits?author=210388248" title="Tests">⚠️</a> <a href="https://github.com/Kush-Gold-Rush/MineShaft/issues?q=author%3A210388248" title="Bug reports">🐛</a></td>
   </tr>
 </table>
