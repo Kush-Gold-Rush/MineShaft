@@ -160,7 +160,9 @@ class ThetanArenaEnv(BaseEnv):
         self.info = {'waiting': True}
         self.done = False
         self.reward = 0
-        time.sleep(10)
+        while self.info['waiting']:
+            self._check_if_game_session_started()
+            time.sleep(3)
         return self._screen_cap()
 
     def close(self):
@@ -380,8 +382,6 @@ class ThetanArenaEnv(BaseEnv):
                 self.cv_matcher.finishtutor_png)
             if thershold > 0.7:
                 self.done = True
-            # self.done = self.cv_matcher.match_location(
-            #     self.cv_matcher.finishtutor_png, self.screen)
 
     def _reset_game(self):
         self._check_if_game_session_ended(self._screen_cap())
