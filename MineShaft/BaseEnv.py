@@ -5,7 +5,8 @@ For any game supported by MineShaft,
 the environment inherited this class as an interface.
 """
 from enum import Enum
-
+from wincap import WindowCapture
+from detection import detection
 import gym
 from gym import spaces
 import numpy as np
@@ -53,6 +54,10 @@ class BaseEnv(gym.Env):
         shall be started. `observation_space` and `action_space` will be
         defined here, and `explore_space` will be defined here too.
         
+         
+        
+        
+        
         Parameters
         ----------
         io_mode : Enum, optional
@@ -84,6 +89,14 @@ class BaseEnv(gym.Env):
             for screen capture or data captured from game's Application Programming Interface
             (also as the input shape of the reinforcement learning agent).
         """
+        
+        '''
+        initialize 2 objects for object detection and screen capture    
+        '''
+        detection = detection()
+        wincap = WindowCapture()
+        
+        
         super(BaseEnv, self).__init__()
         # Define action and observation space
         # They must be gym.spaces objects
@@ -162,6 +175,22 @@ class BaseEnv(gym.Env):
         ob = np.array(sct.grab(monitor))
         episode_over = False
         info = {}
+       
+        screenshot = wincap.get_screenshot()
+        '''
+        the function gets a screenshot as a parameter
+        then it returns a dictionary contains position info of required objects
+        e.g.:
+        dict={ "player" : points,
+                "enemy" : array_of_points,
+                "teammate" : array_of_points
+                }
+        the objects for detection can be added or deleted in class detection
+        then the dictionary migth have more or less info
+        
+        '''
+        observation = detection.detect_item(screenshot)
+        
         return observation, reward, done, info
 
     def reset(self):
