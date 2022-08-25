@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "ivesiuchunproject",
+      "name": "ivesiuchunproject",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110085069?v=4",
+      "profile": "https://github.com/ivesiuchunproject",
+      "contributions": [
+        "code",
+        "maintenance"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "MineShaft",
+  "projectOwner": "Kush-Gold-Rush",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
