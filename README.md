@@ -36,26 +36,6 @@ for _ in range(1000):
 env.close()
 ```
 
-## Getting started (developer)
-Install dependencies
-```bash
-python3 -m pip install -r requirenments.txt
-```
-
-### Test Env with `PPO` (developer)
-```bash
-python3 test.py
-```
-
-Open your favourite editor and change anything to see what will happen.
-
-> ⚠️ Before submitting pull request, please read instructions in [CONTRIBUTING.md](CONTRIBUTING.md)
-to prevent reject of pull request ( 🚧 `400 Bad Request`) and make both of us happy ☕.
-
-## Functional requirements
-- [ ] The frame-rate of screen capture must be more than 30 frames-per-second.
-- [ ] Support multi resolution
-
 ## Supported GameFis
 - Thetan Arena
 
@@ -78,3 +58,23 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## Getting started (developer)
+Install dependencies
+```bash
+python3 -m pip install -r requirenments.txt
+```
+
+### Test Env with `PPO` (developer)
+```bash
+python3 test.py
+```
+
+Open your favourite editor and change anything to see what will happen.
+
+> ⚠️ Before submitting pull request, please read instructions in [CONTRIBUTING.md](CONTRIBUTING.md)
+to prevent reject of pull request ( 🚧 `400 Bad Request`) and make both of us happy ☕.
+
+## Functional requirements
+- [ ] The frame-rate of screen capture must be more than 30 frames-per-second.
+- [ ] Support multi resolution
