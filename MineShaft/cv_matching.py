@@ -36,6 +36,12 @@ class cv_matching:
             "../SourcePictures/finishtutor.png",
             cv2.IMREAD_UNCHANGED)
 
+        self.sift = cv2.SIFT_create()
+        FLANN_INDEX_KDTREE = 1
+        index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+        search_params = dict(checks=50)   # or pass empty dictionary
+        self.matcher = cv2.FlannBasedMatcher(index_params,search_params)
+
     def find_location(self, tofind):
         """Fine the location of image on screen
 
@@ -80,3 +86,24 @@ class cv_matching:
         the methond only returns the thershold value and location of the most suitable matching object
         '''
         return max_loc,max_val
+
+    def match_location(self, query_img, train_img):
+        query_img_bw = cv2.cvtColor(query_img,cv2.COLOR_BGR2GRAY)
+        train_img_bw = cv2.cvtColor(train_img,cv2.COLOR_BGR2GRAY)
+
+        queryKeypoints, queryDescriptors = self.sift.detectAndCompute(query_img_bw, None)
+        trainKeypoints, trainDescriptors = self.sift.detectAndCompute(train_img_bw, None)
+
+        matches = self.matcher.knnMatch(queryDescriptors,
+                                        trainDescriptors,
+                                        k=2)
+        matchesMask = [[0,0] for i in range(len(matches))]
+        for i,(m,n) in enumerate(matches):
+            if m.distance < 0.7*n.distance:
+                matchesMask[i]=[1,0]
+
+        return len(matchesMask) > 10
+
+        # for mat, mask in zip(matches, matchesMask):
+        #     if mask[0]:
+        #         mat[0].queryIdx
