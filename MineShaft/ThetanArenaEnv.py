@@ -60,7 +60,7 @@ class ThetanArenaEnv(BaseEnv):
         except:
             raise Exception("the game is not installed")
         
-        time.sleep(3)
+        time.sleep(10)
         if io_mode == BaseEnv.IO_MODE.FULL_CONTROL:
             # press & release channels; 80 key + mouse (move + click + scroll)
             ACTION_SHAPE = (2 * (80 + (2 + 2 + 1)),)
@@ -147,7 +147,7 @@ class ThetanArenaEnv(BaseEnv):
         obs = self._screen_cap()
         self._calc_reward(obs)
         self._check_if_game_session_started()
-        self._check_if_game_session_ended()
+        self._check_if_game_session_ended(obs)
         a = time.time() - start_time
         if a < 0.09:
             time.sleep(0.1 - a)
@@ -167,11 +167,10 @@ class ThetanArenaEnv(BaseEnv):
         self._end_game()
 
     def _take_action(self, action):
-        self._mouse_move(*action[0,-5:-3]*0.95+0.03)
-        self._mouse_press(action[0,-3] > 0, False)
+        action[:,-2] = 0 # disable right click
         self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
-        self._mouse_move(*action[1,-5:-3]*0.95+0.03)
-        self._mouse_release(action[1,-3] > 0, False)
+        self._mouse_move(*action[0,-5:-3]*0.95+0.03)
+        self._mouse_click(action[:,-3:-1])
         self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
 
     def _screen_cap(self):
@@ -190,8 +189,8 @@ class ThetanArenaEnv(BaseEnv):
             Captured RGBA image with format of numpy.array in HWC
         
         """
-        img = np.array(self.sct.grab(self.monitor))
-        img = cv2.resize(img, self.dsize)
+        self.screen = np.array(self.sct.grab(self.monitor))
+        img = cv2.resize(self.screen, self.dsize)
         return cv2.copyMakeBorder(img,
                                   self.top_pad,
                                   self.bottom_pad,
@@ -212,7 +211,7 @@ class ThetanArenaEnv(BaseEnv):
                         int(l + w * 0.4) :int(l + w * 0.6),
                         0]
             # sum(blue_channel)/total_pixel_num
-            self.reward = image.sum() / image.size
+            self.reward = 2 * image.sum() / image.size - 1
 
     def _keyboard_input(self, action):
         """Press and release keys based on `action` as KEYMAP mask
@@ -371,7 +370,7 @@ class ThetanArenaEnv(BaseEnv):
         if thres > 0.7:
             self.info['waiting'] = False
 
-    def _check_if_game_session_ended(self):
+    def _check_if_game_session_ended(self, obs):
         """Determine if the Tutorial has finished
 
         Powered by OpenCV template matching
@@ -381,9 +380,11 @@ class ThetanArenaEnv(BaseEnv):
                 self.cv_matcher.finishtutor_png)
             if thershold > 0.7:
                 self.done = True
+            # self.done = self.cv_matcher.match_location(
+            #     self.cv_matcher.finishtutor_png, self.screen)
 
     def _reset_game(self):
-        self._check_if_game_session_ended()
+        self._check_if_game_session_ended(self._screen_cap())
         if self.done:
             self._mouse_move(0.5, 0.9)
             self._mouse_press(True, False)

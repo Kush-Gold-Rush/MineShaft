@@ -6,7 +6,7 @@ from MineShaft import ThetanArenaEnv
 def main():
 	env = ThetanArenaEnv(io_mode=ThetanArenaEnv.IO_MODE.SIMPLIFIED)
 	env = make_vec_env(lambda: env, n_envs=1)
-	model = PPO("MlpPolicy", env, verbose=1)
+	model = PPO("CnnPolicy", env, verbose=1)
 	model.learn(total_timesteps=10_000)
 
 	info = {'waiting': True}
