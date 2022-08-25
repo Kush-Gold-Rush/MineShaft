@@ -1,0 +1,34 @@
+import pyautogui
+import time
+
+class Scroll:
+        time.sleep(2)
+        """
+        Parameters
+        ----------
+        value: float
+           the distance of mouse
+        
+        scroll_step: float
+           the time of the loop
+
+        Initialize mouse_scroll, defines the input(value, scroll_step)
+
+        User would enter the value to call this method to scroll a website or whatever
+        -- the mouse will be moved up or down depending on the data user enter
+
+        Record the looping time of the function of _mouse_scroll
+        --return the looping time to the computer 
+        """
+        def __init__(self, value, scroll_step):
+                self.value = value
+                self.scroll_step = scroll_step
+                
+        def _mouse_scroll(self, value, scroll_step):
+
+                for i in range(scroll_step):
+                        pyautogui.scroll(value)
+                        time.sleep(0.2)
+                
+        def  _scroll_step(self):
+                return self.scroll_step
