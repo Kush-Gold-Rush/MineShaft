@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "210388248",
+      "name": "LeeKaYip",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110087604?v=4",
+      "profile": "https://github.com/210388248",
+      "contributions": [
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "MineShaft",
+  "projectOwner": "Kush-Gold-Rush",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
