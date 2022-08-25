@@ -1,4 +1,7 @@
 # MineShaft
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 An Gym compatible environment for Artificial Intelligence Reinforcement Agent to play GameFi
 
 > ⚠️ Currently support Windows 10 only
@@ -55,3 +58,23 @@ to prevent reject of pull request ( 🚧 `400 Bad Request`) and make both of us 
 
 ## Supported GameFis
 - Thetan Arena
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/ivesiuchunproject"><img src="https://avatars.githubusercontent.com/u/110085069?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ivesiuchunproject</b></sub></a><br /><a href="https://github.com/Kush-Gold-Rush/MineShaft/commits?author=ivesiuchunproject" title="Code">💻</a> <a href="#maintenance-ivesiuchunproject" title="Maintenance">🚧</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
