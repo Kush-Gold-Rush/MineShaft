@@ -3,13 +3,14 @@ import time
 import subprocess
 
 import mss
+from gym import spaces
 import numpy as np
 import pyautogui
 import cv2
 import pygetwindow as gw
 
 from .BaseEnv import BaseEnv
-from cv_matching import cv_matching
+from .cv_matching import cv_matching
 
 class ThetanArenaEnv(BaseEnv):
     def __init__(self, io_mode=BaseEnv.IO_MODE.FULL_CONTROL,
@@ -59,9 +60,10 @@ class ThetanArenaEnv(BaseEnv):
         except:
             raise Exception("the game is not installed")
         
-        if io_mode == IO_MODE.FULL_CONTROL:
+        time.sleep(10)
+        if io_mode == BaseEnv.IO_MODE.FULL_CONTROL:
             # press & release channels; 80 key + mouse (move + click + scroll)
-            ACTION_SHAPE = (2, 80 + (2 + 2 + 1))
+            ACTION_SHAPE = (2 * (80 + (2 + 2 + 1)),)
             self.action_space = spaces.Box(low=-1.0, high=1.0,
                                            shape=ACTION_SHAPE,
                                            dtype=np.float32)
@@ -80,11 +82,13 @@ class ThetanArenaEnv(BaseEnv):
 
             self.sct = mss.mss()
             img = np.array(self.sct.grab(self.monitor))
-            ratio = max(img.shape) // 512
+            ratio = max(img.shape) // 512 + 1
             self.dsize = (img.shape[1] // ratio,
                           img.shape[0] // ratio)
-            self.left_right_pad = (obs_shape[1] - self.dsize[1]) // 2
-            self.top_bottom_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.top_pad = (obs_shape[1] - self.dsize[1]) // 2
+            self.bottom_pad = obs_shape[1] - self.dsize[1] - self.top_pad
+            self.left_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.right_pad = obs_shape[0] - self.dsize[0] - self.left_pad
 
             self.KEYBOARD_MAP = np.asarray([
                 'altleft', 'altright', 'ctrlleft', 'ctrlright', 'shiftleft',
@@ -97,7 +101,38 @@ class ThetanArenaEnv(BaseEnv):
                 'num3', 'num4', 'num5', 'num6', 'num7', 'num8', 'num9',
                 'end', 'enter', 'esc', 'numlock', 'pagedown', 'pageup',
                 'right', 'space', 'tab', 'up', 'home'])
-            
+        elif io_mode == BaseEnv.IO_MODE.SIMPLIFIED:
+            # press & release channels; 11 key + mouse (move + click + scroll)
+            ACTION_SHAPE = (2 * (11 + (2 + 2 + 1)),)
+            self.action_space = spaces.Box(low=-1.0, high=1.0,
+                                           shape=ACTION_SHAPE,
+                                           dtype=np.float32)
+
+            # obs_shape in (HEIGHT, WIDTH, N_CHANNELS)
+            obs_shape = (512, 512, 4)
+            self.observation_space = spaces.Box(low=0, high=255,
+                                                shape=obs_shape,
+                                                dtype=np.uint8)
+
+            gameWindow = gw.getWindowsWithTitle('Thetan Arena')[0]
+            self.monitor = {"top": gameWindow.top,
+                            "left": gameWindow.left,
+                            "width": gameWindow.width,
+                            "height": gameWindow.height}
+
+            self.sct = mss.mss()
+            img = np.array(self.sct.grab(self.monitor))
+            ratio = max(img.shape) // 512 + 1
+            self.dsize = (img.shape[1] // ratio,
+                          img.shape[0] // ratio)
+            self.top_pad = (obs_shape[1] - self.dsize[1]) // 2
+            self.bottom_pad = obs_shape[1] - self.dsize[1] - self.top_pad
+            self.left_pad = (obs_shape[0] - self.dsize[0]) // 2
+            self.right_pad = obs_shape[0] - self.dsize[0] - self.left_pad
+
+            self.KEYBOARD_MAP = np.asarray([
+                'w', 'a', 's', 'd', 'space', '0', '1', '2', '3', '4', '5'])
+
         self.info = {'waiting': True}
         self.done = False
         self.reward = 0
@@ -105,30 +140,40 @@ class ThetanArenaEnv(BaseEnv):
         self.cv_matcher = cv_matching()
         self.cv_matcher.preload_templates()
 
-        return self.action_space, self.observation_space
-
     def step(self, action):
+        start_time = time.time()
+        action = action.reshape(2, -1)
         self._take_action(action)
         obs = self._screen_cap()
+        self._calc_reward(obs)
         self._check_if_game_session_started()
-        self._check_if_game_session_ended()
+        self._check_if_game_session_ended(obs)
+        a = time.time() - start_time
+        if a < 0.09:
+            time.sleep(0.1 - a)
         return obs, self.reward, self.done, self.info
 
     def reset(self):
         self._reset_game()
+        time.sleep(3)
         self.enter_match()
         self.info = {'waiting': True}
+        self.done = False
+        self.reward = 0
+        while self.info['waiting']:
+            self._check_if_game_session_started()
+            time.sleep(3)
+        return self._screen_cap()
 
     def close(self):
         self._end_game()
 
     def _take_action(self, action):
-        self._mouse_move(action[0,-5:-3])
-        self._mouse_press(action[0,-3:-1])
-        self._keyboard_press(action[0,:-5])
-        self._mouse_move(action[1,-5:-3])
-        self._mouse_release(action[1,-3:-1])
-        self._keyboard_release(action[1:-5])
+        action[:,-2] = 0 # disable right click
+        self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
+        self._mouse_move(*action[0,-5:-3]*0.95+0.03)
+        self._mouse_click(action[:,-3:-1])
+        self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
 
     def _screen_cap(self):
         """This is the function to capture screen from the game Thetan Arena.
@@ -146,20 +191,29 @@ class ThetanArenaEnv(BaseEnv):
             Captured RGBA image with format of numpy.array in HWC
         
         """
-        img = np.array(self.sct.grab(self.monitor))
-        img = cv2.resize(img, self.dsize)
+        self.screen = np.array(self.sct.grab(self.monitor))
+        img = cv2.resize(self.screen, self.dsize)
         return cv2.copyMakeBorder(img,
-                                  self.top_bottom_pad,
-                                  self.top_bottom_pad,
-                                  self.left_right_pad,
-                                  self.left_right_pad,
+                                  self.top_pad,
+                                  self.bottom_pad,
+                                  self.left_pad,
+                                  self.right_pad,
                                   cv2.BORDER_CONSTANT,
                                   value=[0, 0, 0])
 
-    def _capture_reward(self):
+    def _calc_reward(self, obs):
         if not self.info['waiting'] and not self.done:
-            pass
-        # self.reward = self._screen_get_total_score()
+            h = self.dsize[1]
+            t = self.top_pad
+            w = self.dsize[0]
+            l = self.left_pad
+            # h=92-93%
+            # w=10%*2
+            image = obs[int(t + h * 0.91):int(t + h * 0.93),
+                        int(l + w * 0.4) :int(l + w * 0.6),
+                        0]
+            # sum(blue_channel)/total_pixel_num
+            self.reward = 2 * image.sum() / image.size - 1
 
     def _keyboard_input(self, action):
         """Press and release keys based on `action` as KEYMAP mask
@@ -200,13 +254,9 @@ class ThetanArenaEnv(BaseEnv):
           percentage of screen height
         """
         x = (self.monitor['left'] +
-             width *
-             abs(self.monitor['right'] -
-                 self.monitor['left']))
+             np.abs(width) * self.monitor['width'])
         y = (self.monitor['top'] +
-             height *
-             abs(self.monitor['bottom'] -
-                 self.monitor['top']))
+             np.abs(height) * self.monitor['height'])
         pyautogui.moveTo(x, y, duration=0.2)
     
     def _mouse_click(self, action):
@@ -260,6 +310,9 @@ class ThetanArenaEnv(BaseEnv):
             pyautogui.mouseUp()
         if right:
             pyautogui.mouseUp(button='right')
+
+    def _mouse_scroll(self, value):
+        pyautogui.scroll(value * self.SCROLL_STEP)
 
     def _start_game(self):
         """This is the code of start game
@@ -322,7 +375,7 @@ class ThetanArenaEnv(BaseEnv):
         if thres > 0.7:
             self.info['waiting'] = False
 
-    def _check_if_game_session_ended(self):
+    def _check_if_game_session_ended(self, obs):
         """Determine if the Tutorial has finished
 
         Powered by OpenCV template matching
@@ -334,4 +387,8 @@ class ThetanArenaEnv(BaseEnv):
                 self.done = True
 
     def _reset_game(self):
-        pass
+        self._check_if_game_session_ended(self._screen_cap())
+        if self.done:
+            self._mouse_move(0.5, 0.9)
+            self._mouse_press(True, False)
+            self._mouse_release(True, False)

@@ -8,6 +8,7 @@ from enum import Enum
 
 import gym
 from gym import spaces
+import numpy as np
 
 class BaseEnv(gym.Env):
     """Custom Environment that follows gym interface
@@ -41,6 +42,7 @@ class BaseEnv(gym.Env):
     metadata = {'render.modes': ['human']}
     IO_MODE = Enum('IO_MODE', ('API', 'SIMPLIFIED', 'FULL_CONTROL'))
     EXPLORE_MODE = Enum('EXPLORE_MODE', ('MATCH', 'FULL'))
+    SCROLL_STEP = 1000
 
     def __init__(self, io_mode=IO_MODE.FULL_CONTROL,
                  explore_space=EXPLORE_MODE.FULL):
@@ -85,25 +87,25 @@ class BaseEnv(gym.Env):
         super(BaseEnv, self).__init__()
         # Define action and observation space
         # They must be gym.spaces objects
-        if io_mode == IO_MODE.FULL_CONTROL:
+        if io_mode == self.IO_MODE.FULL_CONTROL:
             # press & release channels; 92 key + mouse (move + click + scroll)
-            ACTION_SHAPE = (2, 92 + (2 + 2 + 1))
+            ACTION_SHAPE = (2 * (92 + (2 + 2 + 1)),)
             # screen height
             HEIGHT = 512
             # screen width
             WIDTH = 512
             # screen color channels
             N_CHANNELS = 3
-        elif io_mode == IO_MODE.SIMPLIFIED:
+        elif io_mode == self.IO_MODE.SIMPLIFIED:
             # keyboard (WASD/SPACE/12345) + mouse (move + click + scroll)
-            ACTION_SHAPE = (2, 11 + (2 + 2 + 1))
+            ACTION_SHAPE = (2 * (11 + (2 + 2 + 1)),)
             # screen height
             HEIGHT = 512
             # screen width
             WIDTH = 512
             # screen color channels
             N_CHANNELS = 3
-        elif io_mode == IO_MODE.API:
+        elif io_mode == self.IO_MODE.API:
             raise NotImplementedError
 
         self.action_space = spaces.Box(low=-1.0, high=1.0,
@@ -112,7 +114,6 @@ class BaseEnv(gym.Env):
                                             shape=(HEIGHT, WIDTH, N_CHANNELS),
                                             dtype=np.uint8)
         self.explore_space = explore_space
-        return self.action_space, self.observation_space
 
     def step(self, action):
         """Send keyboard and mouse action to the game environment
