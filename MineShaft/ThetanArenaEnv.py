@@ -133,6 +133,7 @@ class ThetanArenaEnv(BaseEnv):
             self.KEYBOARD_MAP = np.asarray([
                 'w', 'a', 's', 'd', 'space', '0', '1', '2', '3', '4', '5'])
 
+        self.io_mode = io_mode
         self.info = {'waiting': True}
         self.done = False
         self.reward = 0
@@ -169,11 +170,19 @@ class ThetanArenaEnv(BaseEnv):
         self._end_game()
 
     def _take_action(self, action):
-        action[:,-2] = 0 # disable right click
-        self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
-        self._mouse_move(*action[0,-5:-3]*0.95+0.03)
-        self._mouse_click(action[:,-3:-1])
-        self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
+        if self.io_mode == BaseEnv.IO_MODE.FULL_CONTROL:
+            self._mouse_move(*action[0,-5:-3])
+            self._mouse_press(*(action[0,-3:-1] > 0))
+            self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
+            self._mouse_move(*action[1,-5:-3])
+            self._mouse_release(*(action[1,-3:-1] > 0))
+            self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
+        else:
+            self._keyboard_press(self.KEYBOARD_MAP[action[0,:-5] > 0])
+            self._mouse_move(*action[0,-5:-3])
+            self._mouse_press(action[0, -3] > 0, False)
+            self._mouse_release(action[0, -3] > 0, False)
+            self._keyboard_release(self.KEYBOARD_MAP[action[1,:-5] > 0])
 
     def _screen_cap(self):
         """This is the function to capture screen from the game Thetan Arena.
@@ -253,11 +262,11 @@ class ThetanArenaEnv(BaseEnv):
         height : float
           percentage of screen height
         """
-        x = (self.monitor['left'] +
-             np.abs(width) * self.monitor['width'])
-        y = (self.monitor['top'] +
-             np.abs(height) * self.monitor['height'])
-        pyautogui.moveTo(x, y, duration=0.2)
+        x = (self.monitor['left'] + 5 +
+             np.abs(width) * (self.monitor['width'] - 15))
+        y = (self.monitor['top'] + 35 +
+             np.abs(height) * (self.monitor['height'] - 45))
+        pyautogui.moveTo(x, y)
     
     def _mouse_click(self, action):
         """Click mouse left and right button by probability value.
