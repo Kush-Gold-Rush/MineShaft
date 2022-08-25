@@ -2,6 +2,25 @@
 An Gym compatible environment for Artificial Intelligence Reinforcement Agent to play GameFi
 
 > ⚠️ Currently support Windows 10 only
+## Getting started
+Install [Thetan Arena](https://thetanarena.com/)
+And set its resolution to 1280 * 720
+
+Download this repository
+```bash
+git clone -b develop https://github.com/NewJerseyStyle/MineShaft.git
+```
+
+Install dependencies
+```bash
+cd MineShaft
+python3 -m pip install -r requirenments.txt
+```
+
+Test to train with PPO (CnnPolicy)
+```bash
+python3 test.py
+```
 
 ## Getting started (user)
 ```py3
@@ -32,6 +51,7 @@ to prevent reject of pull request ( 🚧 `400 Bad Request`) and make both of us 
 
 ## Functional requirements
 - [ ] The frame-rate of screen capture must be more than 30 frames-per-second.
+- [ ] Support multi resolution
 
 ## Supported GameFis
 - Thetan Arena
