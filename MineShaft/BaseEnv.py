@@ -42,6 +42,7 @@ class BaseEnv(gym.Env):
     metadata = {'render.modes': ['human']}
     IO_MODE = Enum('IO_MODE', ('API', 'SIMPLIFIED', 'FULL_CONTROL'))
     EXPLORE_MODE = Enum('EXPLORE_MODE', ('MATCH', 'FULL'))
+    SCROLL_STEP = 1000
 
     def __init__(self, io_mode=IO_MODE.FULL_CONTROL,
                  explore_space=EXPLORE_MODE.FULL):

@@ -311,6 +311,9 @@ class ThetanArenaEnv(BaseEnv):
         if right:
             pyautogui.mouseUp(button='right')
 
+    def _mouse_scroll(self, value):
+        pyautogui.scroll(value * self.SCROLL_STEP)
+
     def _start_game(self):
         """This is the code of start game
 
